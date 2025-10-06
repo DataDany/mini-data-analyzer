@@ -1,3 +1,4 @@
+from cleaners.data_cleaner import DataCleaner
 from loaders.tweets_loader import TweetsLoader
 from pyspark.sql import SparkSession
 
@@ -7,10 +8,17 @@ def main():
              .getOrCreate())
 
     loader = TweetsLoader(spark)
-    df = loader.load_all_tweets()
+    df_raw = loader.load_all_tweets()
 
-    df.show(truncate=False)
-    df.printSchema()
+### RAW data
+    df_raw.show(truncate=False)
+    df_raw.printSchema()
+
+    df_cleaned = DataCleaner.clean_tweets_data(df_raw)
+
+### Cleaned data
+    df_cleaned.show(truncate=False)
+    df_cleaned.printSchema()
 
     spark.stop()
 
