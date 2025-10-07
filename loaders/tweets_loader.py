@@ -8,6 +8,7 @@ COVID: str = "covid"
 FINANCIAL: str = "financial"
 GRAMMYS: str = "grammys"
 
+
 class TweetsLoader:
     def __init__(
             self,
@@ -25,7 +26,6 @@ class TweetsLoader:
             "escape": '"'
         }
 
-
     def load_all_tweets(self):
         covid_df = self.load_covid_tweets()
         financial_df = self.load_financial_tweets()
@@ -36,30 +36,26 @@ class TweetsLoader:
 
         return unioned
 
-
     def load_covid_tweets(self) -> DataFrame:
         return self._load_single_csv(
             filename="/covid19_tweets.csv",
             category=COVID,
-            source="covid19_tweets"
+            load_from="covid19_tweets"
         )
-
 
     def load_financial_tweets(self) -> DataFrame:
         return self._load_single_csv(
             filename="/financial.csv",
             category=FINANCIAL,
-            source="financial"
+            load_from="financial"
         )
-
 
     def load_grammy_tweets(self) -> DataFrame:
         return self._load_single_csv(
             filename="/GRAMMYS_tweets.csv",
             category=GRAMMYS,
-            source="grammys_tweets"
+            load_from="grammys_tweets"
         )
-
 
     def _read_csv(self, path: str) -> DataFrame:
         reader = self.spark.read
@@ -67,14 +63,13 @@ class TweetsLoader:
             reader = reader.option(k, v)
         return reader.csv(path)
 
-
-    def _load_single_csv(self, filename: str, category: str, source: str) -> DataFrame:
+    def _load_single_csv(self, filename: str, category: str, load_from: str) -> DataFrame:
         path = f"{self.base_path}/{filename}"
 
         df = (
             self._read_csv(path)
             .withColumn("category", lit(category))
-            .withColumn("source", lit(source))
+            .withColumn("file", lit(load_from))
         )
 
         if "text" in df.columns:
@@ -83,10 +78,9 @@ class TweetsLoader:
             pass
 
         rec_cnt = df.count()
-        print(f"Loaded: {rec_cnt} records from {source} ({filename})")
+        print(f"Loaded: {rec_cnt} records from {load_from} ({filename})")
 
         return df
-
 
     @staticmethod
     def _safe_union_all(dfs: List[DataFrame]) -> DataFrame:
