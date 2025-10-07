@@ -9,6 +9,11 @@ class DataCleaner:
 
     @staticmethod
     def clean_tweets_data(df: DataFrame) -> DataFrame:
+        """
+         Performs data cleaning operations on raw tweet datasets
+        :param df:
+        :return: DataFrame
+        """
         cleaned = (df.withColumn("hashtags",
                                  transform(
                                      split(regexp_replace(col("hashtags"), r"[ \[\]']", ""),

@@ -10,6 +10,11 @@ GRAMMYS: str = "grammys"
 
 
 class TweetsLoader:
+
+    """
+    Responsible for loading tweets from CSV files (COVID, Financial, GRAMMYs).
+    """
+
     def __init__(
             self,
             spark: SparkSession,
