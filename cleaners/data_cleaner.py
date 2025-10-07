@@ -26,7 +26,5 @@ class DataCleaner:
                                .otherwise(None)
                                .cast(BooleanType())
                                )
-
                    )
         return cleaned
-
