@@ -1,6 +1,8 @@
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import regexp_replace, col, split, transform, trim
-from pyspark.sql.types import LongType, DateType, TimestampType
+from pyspark.sql.functions import regexp_replace, col, split, transform, trim, lower, when
+from pyspark.sql.types import LongType, DateType, TimestampType, BooleanType
+
+from constants.columns_name import ColumnsName
 
 
 class DataCleaner:
@@ -18,6 +20,13 @@ class DataCleaner:
                    .withColumn("user_favourites", col("user_favourites").cast(LongType()))
                    .withColumn("user_friends", col("user_friends").cast(LongType()))
                    .withColumn("user_followers", col("user_followers").cast(LongType()))
+                   .withColumn(ColumnsName.IS_RETWEET,
+                               when(lower(trim(col(ColumnsName.IS_RETWEET))).isin("true", "1"), True)
+                               .when(lower(trim(col(ColumnsName.IS_RETWEET))).isin("false", "0"), False)
+                               .otherwise(None)
+                               .cast(BooleanType())
+                               )
+
                    )
         return cleaned
 
