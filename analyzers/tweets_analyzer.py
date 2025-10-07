@@ -1,5 +1,6 @@
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, explode_outer, trim, lower, count, lit, avg
+
 from constants.columns_name import ColumnsName
 
 
@@ -35,4 +36,28 @@ def calculate_avg_user_followers_per_location(df: DataFrame) -> DataFrame:
         base.groupBy(ColumnsName.USER_LOCATION)
         .agg(avg(ColumnsName.USER_FOLLOWERS).alias("avg_user_followers"))
         .orderBy(col("avg_user_followers").desc(), col(ColumnsName.USER_LOCATION).asc())
+    )
+
+
+def source_count(df: DataFrame) -> DataFrame:
+    return (df.groupBy(ColumnsName.SOURCE)
+            .agg(count(lit(1)).alias("count"))
+            .orderBy(col("count").desc())
+            )
+
+
+def source_and_category_count(df: DataFrame) -> DataFrame:
+    return (
+        df.groupBy("source", "category")
+        .agg(count(lit(1)).alias("count"))
+        .orderBy(col("count").desc())
+    )
+
+
+def top_active_users(df: DataFrame, top_n: int = 10) -> DataFrame:
+    return (
+        df.groupBy("user_name")
+        .agg(count(lit(1)).alias("tweet_count"))
+        .orderBy(col("tweet_count").desc())
+        .limit(top_n)
     )
