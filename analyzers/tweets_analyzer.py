@@ -1,0 +1,38 @@
+from pyspark.sql import DataFrame
+from pyspark.sql.functions import col, explode_outer, trim, lower, count, lit, avg
+from constants.columns_name import ColumnsName
+
+
+# AGREGATION
+
+def calculate_hashtags(df: DataFrame, top_n: int | None = None) -> DataFrame:
+    out = (
+        df
+        .select(explode_outer(ColumnsName.HASHTAGS).alias(ColumnsName.HASHTAGS))
+        .filter(col(ColumnsName.HASHTAGS).isNotNull() & (col(ColumnsName.HASHTAGS) != ""))
+        .select(trim(lower(col(ColumnsName.HASHTAGS))).alias(ColumnsName.HASHTAGS))
+        .groupBy(ColumnsName.HASHTAGS)
+        .agg(count(lit(1)).alias("count"))
+        .orderBy(col("count").desc(), col(ColumnsName.HASHTAGS).asc())
+    )
+    return out.limit(top_n) if top_n else out
+
+
+def is_retweet_count(df: DataFrame) -> DataFrame:
+    return (df.groupBy(ColumnsName.IS_RETWEET)
+            .agg(count(lit(1)).alias("count"))
+            .orderBy(col("count").desc())
+            )
+
+
+def calculate_avg_user_followers_per_location(df: DataFrame) -> DataFrame:
+    base = (
+        df.select(ColumnsName.USER_NAME, ColumnsName.USER_FOLLOWERS, ColumnsName.USER_LOCATION)
+        .filter(col(ColumnsName.USER_NAME).isNotNull() & col(ColumnsName.USER_LOCATION).isNotNull())
+        .dropDuplicates([ColumnsName.USER_NAME])
+    )
+    return (
+        base.groupBy(ColumnsName.USER_LOCATION)
+        .agg(avg(ColumnsName.USER_FOLLOWERS).alias("avg_user_followers"))
+        .orderBy(col("avg_user_followers").desc(), col(ColumnsName.USER_LOCATION).asc())
+    )
