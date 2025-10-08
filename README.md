@@ -7,6 +7,31 @@ The goal is to gain hands-on experience with data loading, cleaning, and analysi
 
 ---
 
+## How to Run the Project
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/DataDany/mini-data-analyzer.git
+cd mini-data-analyzer
+```
+
+### 2. Create and activate a virtual environment
+```bash
+python3 -m venv .venv
+source .venv/bin/activate     # macOS / Linux
+# .venv\Scripts\activate      # Windows
+```
+
+### 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Run the main script
+```bash
+python main.py
+```
+
 ## Project Overview
 
 The project is divided into **three main modules**:
